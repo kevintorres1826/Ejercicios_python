@@ -1,13 +1,10 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, simpledialog
 
 # ------------------ DATOS ------------------
 
 dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
-
-# Diccionario para múltiples gastos por día
 gastos = {dia: [] for dia in dias}
-
 ingresos = 0
 
 # ------------------ FUNCIONES ------------------
@@ -28,7 +25,35 @@ def agregar_gasto():
 
     gastos[dia].append(valor)
     actualizar_tabla()
+    actualizar_balance()
     entry_valor.delete(0, tk.END)
+
+def eliminar_gasto():
+    dia = combo_dia.get()
+    lista = gastos[dia]
+
+    if not lista:
+        messagebox.showinfo("Eliminar", f"No hay gastos en {dia}")
+        return
+
+    texto = f"Gastos en {dia}:\n\n"
+    for i, gasto in enumerate(lista, 1):
+        texto += f"{i}. ${gasto:,.2f}\n"
+
+    texto += "\nIngrese el número del gasto que desea eliminar:"
+
+    numero = simpledialog.askinteger("Eliminar gasto", texto)
+
+    if numero is None:
+        return
+
+    if 1 <= numero <= len(lista):
+        eliminado = lista.pop(numero - 1)
+        messagebox.showinfo("Éxito", f"Se eliminó el gasto ${eliminado:,.2f}")
+        actualizar_tabla()
+        actualizar_balance()
+    else:
+        messagebox.showerror("Error", "Número inválido")
 
 def agregar_ingreso():
     global ingresos
@@ -80,7 +105,6 @@ Gastos totales: ${total_gastos:,.2f}
 --------------------------
 Balance semanal: ${balance:,.2f}
 """
-
     messagebox.showinfo("Balance semanal", texto)
 
 def actualizar_balance():
@@ -134,15 +158,19 @@ tk.Button(frame_inputs, text="Ver gastos del día",
           bg="#17A673", fg="white",
           command=ver_gastos_dia).grid(row=3, column=0, columnspan=2, pady=5)
 
+tk.Button(frame_inputs, text="Eliminar gasto del día",
+          bg="#E74A3B", fg="white",
+          command=eliminar_gasto).grid(row=4, column=0, columnspan=2, pady=5)
+
 # ------------------ INGRESOS ------------------
 
-tk.Label(frame_inputs, text="Ingreso:", bg="#2A2A40", fg="white").grid(row=4, column=0, padx=10)
+tk.Label(frame_inputs, text="Ingreso:", bg="#2A2A40", fg="white").grid(row=5, column=0, padx=10)
 entry_ingreso = tk.Entry(frame_inputs)
-entry_ingreso.grid(row=4, column=1)
+entry_ingreso.grid(row=5, column=1)
 
 tk.Button(frame_inputs, text="Agregar Ingreso",
           bg="#36B9CC", fg="white",
-          command=agregar_ingreso).grid(row=5, column=0, columnspan=2, pady=5)
+          command=agregar_ingreso).grid(row=6, column=0, columnspan=2, pady=5)
 
 # ------------------ TABLA ------------------
 
